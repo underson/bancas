@@ -41,11 +41,11 @@ public class Paginacao {
 	}
 	
 	public int getInicio() {
-		if (pagina - 2 > 1) {
+		if (pagina - 3 > 1) {
 			if (pagina + 3 > numeroPaginas) {
 				return numeroPaginas - 4;
 			} else {
-				return pagina - 2;
+				return pagina - 3;
 			}
 		} else {
 			return 1;
