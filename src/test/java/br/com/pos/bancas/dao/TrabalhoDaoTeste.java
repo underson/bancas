@@ -223,13 +223,13 @@ public class TrabalhoDaoTeste {
 		Trabalho recuperado;
 		
 		recuperado = trabalhoDao.obter(trabalho.getCodigo());
-		assertEquals(recuperado.getTitulo(), "Titulo");
+		assertEquals("Titulo", recuperado.getTitulo());
 		
 		trabalho.setTitulo("Novo Titulo");
 		trabalhoDao.atualizar(trabalho);
 		
 		recuperado = trabalhoDao.obter(trabalho.getCodigo());
-		assertEquals(recuperado.getTitulo(), "Novo Titulo");
+		assertEquals("Novo Titulo", recuperado.getTitulo());
 	}
 
 	@Test

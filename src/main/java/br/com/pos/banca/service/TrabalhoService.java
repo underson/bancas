@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -20,29 +21,50 @@ import br.com.pos.persistencia.Paginacao;
 @Path("trabalho")
 public class TrabalhoService  {
 	
-	@Inject
 	private EntityManager manager;
 	
 	public TrabalhoService() {
 
 	}
 	
+	@Inject
+	public TrabalhoService(EntityManager manager) {
+		this.manager = manager;
+	}
+	
 	@GET
-	public Response buscar() throws Exception {
+	@Path("/listar")
+	public Response listar() throws Exception {
 		TrabalhoDao trabalhoDao = new TrabalhoDao(manager);
 		Collection<Trabalho> trabalhos = trabalhoDao.buscar(new Trabalho(), new Paginacao());
+		
 		return Response.ok(trabalhos, MediaType.APPLICATION_JSON).build();
 	}
 	
 	@POST
+	@Path("/persistir")
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response persistir(Trabalho trabalho) throws Exception {
 		TrabalhoDao trabalhoDao = new TrabalhoDao(manager);
 		trabalhoDao.persistir(trabalho);
-
+		
 		return Response.ok(trabalho, MediaType.APPLICATION_JSON).build();
 	}
+	
+	@POST
+	@Path("/buscar")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response buscar(Trabalho trabalho) throws Exception {
+		TrabalhoDao trabalhoDao = new TrabalhoDao(manager);
+		Collection<Trabalho> trabalhos = trabalhoDao.buscar(trabalho, new Paginacao());
+		
+		return Response.ok(trabalhos, MediaType.APPLICATION_JSON).build();
+	}
+	
 
 	@PUT
+	@Path("/alterar")
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response alterar(Trabalho trabalho) throws Exception {
 		TrabalhoDao trabalhoDao = new TrabalhoDao(manager);
 		trabalhoDao.atualizar(trabalho);
@@ -51,13 +73,13 @@ public class TrabalhoService  {
 	}
 
 	@DELETE
-	@Path("{codigo}")
+	@Path("/excluir/{codigo}")
 	public Response excluir(@PathParam("codigo") Integer codigo) throws Exception {
 		TrabalhoDao trabalhoDao = new TrabalhoDao(manager);
-		trabalhoDao.remover(trabalhoDao.obter(codigo));
+		Trabalho trabalho = trabalhoDao.obter(codigo);
+		trabalhoDao.remover(trabalho);
 
-		return Response.ok(trabalhoDao.buscar(new Trabalho(),
-		new Paginacao()), MediaType.APPLICATION_JSON).build();
+		return Response.ok(trabalho, MediaType.APPLICATION_JSON).build();
 	}
 
 }
