@@ -14,9 +14,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import br.com.pos.academico.constante.GrupoUsuario;
 import br.com.pos.banca.dao.TrabalhoDao;
 import br.com.pos.banca.entidade.Trabalho;
 import br.com.pos.persistencia.Paginacao;
+import br.com.pos.web.seguranca.Permissao;
 
 @Path("trabalho")
 public class TrabalhoService  {
@@ -34,6 +36,7 @@ public class TrabalhoService  {
 	
 	@GET
 	@Path("/listar")
+	@Permissao(GrupoUsuario.ADMINISTRADOR)
 	public Response listar() throws Exception {
 		TrabalhoDao trabalhoDao = new TrabalhoDao(manager);
 		Collection<Trabalho> trabalhos = trabalhoDao.buscar(new Trabalho(), new Paginacao());
