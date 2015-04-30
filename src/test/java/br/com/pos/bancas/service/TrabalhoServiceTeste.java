@@ -9,7 +9,14 @@ import java.util.Collection;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 
+import org.jboss.resteasy.plugins.server.netty.NettyJaxrsServer;
+import org.jboss.resteasy.spi.ResourceFactory;
+import org.jboss.resteasy.test.TestPortProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,24 +29,39 @@ import br.com.pos.academico.entidade.Pessoa;
 import br.com.pos.academico.entidade.Usuario;
 import br.com.pos.banca.dao.TrabalhoDao;
 import br.com.pos.banca.entidade.Trabalho;
-import br.com.pos.banca.service.TrabalhoService;
 import br.com.pos.persistencia.Paginacao;
 
 public class TrabalhoServiceTeste {
 	
+	private Client cliente;
 	private EntityManager manager;
+	private NettyJaxrsServer server;
 	private EntityManagerFactory factory;
 	
 	@Before
-	public void iniciar() {
+	public void iniciar() throws Exception {
 		factory = Persistence.createEntityManagerFactory("bancas");
 		manager = factory.createEntityManager();
+		cliente = ClientBuilder.newClient();
+		
+		int porta = TestPortProvider.getPort();
+
+		server = new NettyJaxrsServer();
+		server.setRootResourcePath("");
+		server.setSecurityDomain(null);
+		server.setPort(porta);
+		server.start();
+		
+		ResourceFactory resourceFactory = new TrabalhoServiceFactory(manager);
+		server.getDeployment().getRegistry().addResourceFactory(resourceFactory);
 	}
-	
+
 	@After
-	public void terminar() {
+	public void terminar() throws Exception {
+		cliente.close(); 
 		manager.close();
 		factory.close();
+		server.stop();
 	}
 	
 	private Trabalho instanciarTrabalho() {
@@ -101,9 +123,7 @@ public class TrabalhoServiceTeste {
 		assertThat(trabalhos.isEmpty(), is(true));
 		Trabalho trabalho = instanciarTrabalho();
 		
-		TrabalhoService trabalhoService = new TrabalhoService(manager);
-		
-		Trabalho response = (Trabalho) trabalhoService.persistir(trabalho).getEntity();
+		Trabalho response = cliente.target(TestPortProvider.generateURL("/trabalho")).path("/persistir").request().post(Entity.entity(trabalho, MediaType.APPLICATION_JSON), Trabalho.class);
 		assertThat(response.getTitulo(), is("Teste"));
 		
 		trabalhos = trabalhoDao.buscar(new Trabalho(), new Paginacao());
@@ -122,8 +142,7 @@ public class TrabalhoServiceTeste {
 		
 		trabalho.setTitulo("Novo Titulo");
 		
-		TrabalhoService trabalhoService = new TrabalhoService(manager);
-		Trabalho response = (Trabalho) trabalhoService.alterar(trabalho).getEntity();
+		Trabalho response = cliente.target(TestPortProvider.generateURL("/trabalho")).path("/alterar").request().put(Entity.entity(trabalho, MediaType.APPLICATION_JSON), Trabalho.class);
 		assertThat(response.getTitulo(), is("Novo Titulo"));
 		
 		recuperado = trabalhoDao.obter(trabalho.getCodigo());
@@ -140,8 +159,8 @@ public class TrabalhoServiceTeste {
 		trabalhos = trabalhoDao.buscar(new Trabalho(), new Paginacao());
 		assertThat(trabalhos.isEmpty(), is(false));
 		
-		TrabalhoService trabalhoService = new TrabalhoService(manager);
-		Trabalho response = (Trabalho) trabalhoService.excluir(trabalho.getCodigo()).getEntity();
+		Integer codigo = trabalho.getCodigo();
+		Trabalho response = cliente.target(TestPortProvider.generateURL("/trabalho")).path("/excluir/{codigo}").resolveTemplate("codigo", codigo).request().delete(Trabalho.class);
 		
 		trabalhos = trabalhoDao.buscar(new Trabalho(), new Paginacao());
 		assertThat(response.getTitulo(), is("Teste"));
@@ -151,16 +170,17 @@ public class TrabalhoServiceTeste {
 	@Test
 	@SuppressWarnings("all")
 	public void listar() throws Exception {
-		TrabalhoService trabalhoService = new TrabalhoService(manager);
-		Collection<Trabalho> response = (Collection) trabalhoService.listar().getEntity();
-		assertThat(response.isEmpty(), is(true));
-
+		Collection<Trabalho> trabalhos;
 		TrabalhoDao trabalhoDao = new TrabalhoDao(manager);
+		trabalhos = trabalhoDao.buscar(new Trabalho(), new Paginacao());
+		
+		assertThat(trabalhos.isEmpty(), is(true));
+		
 		Trabalho trabalho = instanciarTrabalho();
 		trabalhoDao.persistir(trabalho);
 		
-		response = (Collection) trabalhoService.listar().getEntity();
-		assertThat(response.isEmpty(), is(false));
+		trabalhos = cliente.target(TestPortProvider.generateURL("/trabalho")).path("/listar").request().get(Collection.class);
+		assertEquals(1, trabalhos.size());
 	}
 
 	@Test
@@ -173,8 +193,7 @@ public class TrabalhoServiceTeste {
 		Trabalho exemplo = new Trabalho();
 		exemplo.setTitulo("Teste");
 		
-		TrabalhoService trabalhoService = new TrabalhoService(manager);
-		Collection<Trabalho> response = (Collection) trabalhoService.buscar(trabalho).getEntity();
+		Collection<Trabalho> response = cliente.target(TestPortProvider.generateURL("/trabalho")).path("/buscar").request().post(Entity.entity(trabalho, MediaType.APPLICATION_JSON), Collection.class);
 		
 		Collection<Trabalho> trabalhos = trabalhoDao.buscar(exemplo, new Paginacao());
 		assertThat(trabalhos.isEmpty(), is(false));
