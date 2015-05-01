@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 
 import javax.persistence.EntityManager;
@@ -14,7 +15,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
-import org.jboss.resteasy.plugins.server.netty.NettyJaxrsServer;
+import org.jboss.resteasy.plugins.server.sun.http.HttpContextBuilder;
 import org.jboss.resteasy.spi.ResourceFactory;
 import org.jboss.resteasy.test.TestPortProvider;
 import org.junit.After;
@@ -31,12 +32,16 @@ import br.com.pos.banca.dao.TrabalhoDao;
 import br.com.pos.banca.entidade.Trabalho;
 import br.com.pos.persistencia.Paginacao;
 
+import com.sun.net.httpserver.HttpServer;
+
 public class TrabalhoServiceTeste {
 	
 	private Client cliente;
 	private EntityManager manager;
-	private NettyJaxrsServer server;
 	private EntityManagerFactory factory;
+	
+	private HttpServer server;
+	private HttpContextBuilder builder;
 	
 	@Before
 	public void iniciar() throws Exception {
@@ -45,15 +50,15 @@ public class TrabalhoServiceTeste {
 		cliente = ClientBuilder.newClient();
 		
 		int porta = TestPortProvider.getPort();
-
-		server = new NettyJaxrsServer();
-		server.setRootResourcePath("");
-		server.setSecurityDomain(null);
-		server.setPort(porta);
-		server.start();
 		
+		server = HttpServer.create(new InetSocketAddress(porta), 10);
 		ResourceFactory resourceFactory = new TrabalhoServiceFactory(manager);
-		server.getDeployment().getRegistry().addResourceFactory(resourceFactory);
+
+		builder = new HttpContextBuilder();
+		builder.bind(server);
+
+		builder.getDeployment().getRegistry().addResourceFactory(resourceFactory);
+	    server.start();
 	}
 
 	@After
@@ -61,7 +66,9 @@ public class TrabalhoServiceTeste {
 		cliente.close(); 
 		manager.close();
 		factory.close();
-		server.stop();
+		
+		builder.cleanup();
+		server.stop(0);
 	}
 	
 	private Trabalho instanciarTrabalho() {
@@ -166,7 +173,7 @@ public class TrabalhoServiceTeste {
 		assertThat(response.getTitulo(), is("Teste"));
 		assertThat(trabalhos.isEmpty(), is(true));
 	}
-
+	
 	@Test
 	@SuppressWarnings("all")
 	public void listar() throws Exception {

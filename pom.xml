@@ -114,8 +114,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-netty</artifactId>
+			<artifactId>resteasy-jdk-http</artifactId>
 			<version>${resteasy.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.net.httpserver</groupId>
+			<artifactId>http</artifactId>
+			<version>20070405</version>
 		</dependency>
 	</dependencies>
 	<build>
