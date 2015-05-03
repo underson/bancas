@@ -58,7 +58,7 @@ public class TrabalhoServiceTeste {
 		builder.bind(server);
 
 		builder.getDeployment().getRegistry().addResourceFactory(resourceFactory);
-	    server.start();
+		server.start();
 	}
 
 	@After
