@@ -1,6 +1,7 @@
 package br.com.pos.banca.service;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -14,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import br.com.pos.academico.entidade.Curso;
 import br.com.pos.banca.dao.AgendamentoSalaDao;
 import br.com.pos.banca.entidade.AgendamentoSala;
 import br.com.pos.persistencia.Paginacao;
@@ -78,7 +80,7 @@ private EntityManager manager;
 		AgendamentoSalaDao agendamentoSalaDao = new AgendamentoSalaDao(manager);
 		AgendamentoSala agendamentoSala = agendamentoSalaDao.obter(codigo);
 		agendamentoSalaDao.remover(agendamentoSala);
-
+		
 		return Response.ok(agendamentoSala, MediaType.APPLICATION_JSON).build();
 	}
 

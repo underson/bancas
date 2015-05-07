@@ -144,7 +144,7 @@ public class AgendamentoServiceTeste {
 		Agendamento response = cliente.target(TestPortProvider.generateURL("/agendamento")).path("/excluir/{codigo}").resolveTemplate("codigo", codigo).request().delete(Agendamento.class);
 		
 		agendamentos = agendamentoDao.buscar(new Agendamento(), new Paginacao());
-		assertThat(response.getSala().getSala().getNome(), is("Teste"));
+		assertThat(response.getSala().getSala().getNome(), is("Local Teste"));
 		assertThat(agendamentos.isEmpty(), is(true));
 	}
 	

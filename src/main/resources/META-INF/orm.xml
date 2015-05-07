@@ -225,7 +225,7 @@
 					<cascade-all/>
 				</cascade>
 			</one-to-one>
-			<many-to-many name="cursos" target-entity="br.com.pos.academico.entidade.Curso">
+			<many-to-many name="cursos" target-entity="br.com.pos.academico.entidade.Curso" fetch="EAGER">
 				<join-table name="sala_curso">
 					<inverse-join-column name="palestrante_codigo" unique="false"/>
 				</join-table>
