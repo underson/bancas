@@ -10,7 +10,7 @@
 	<properties>
 		<hibernate.version>4.3.8.Final</hibernate.version>
 		<resteasy.version>3.0.11.Final</resteasy.version>
-		<weld.version>3.1.2.Final</weld.version>
+		<weld.version>4.0.1.Final</weld.version>
 		<tiles.version>3.0.5</tiles.version>
 	</properties>
 
