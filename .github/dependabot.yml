@@ -1,0 +1,57 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.jboss.resteasy:resteasy-jdk-http
+    versions:
+    - 3.14.0.Final
+    - 3.15.0.Final
+  - dependency-name: org.jboss.resteasy:resteasy-client
+    versions:
+    - 3.14.0.Final
+    - 3.15.0.Final
+  - dependency-name: org.jboss.resteasy:resteasy-jackson-provider
+    versions:
+    - 3.14.0.Final
+    - 3.15.0.Final
+  - dependency-name: org.jboss.resteasy:resteasy-cdi
+    versions:
+    - 3.14.0.Final
+    - 3.15.0.Final
+  - dependency-name: org.jboss.resteasy:resteasy-servlet-initializer
+    versions:
+    - 3.14.0.Final
+    - 3.15.0.Final
+  - dependency-name: org.jboss.resteasy:resteasy-jaxrs
+    versions:
+    - 3.14.0.Final
+    - 3.15.0.Final
+  - dependency-name: org.projectlombok:lombok
+    versions:
+    - 1.18.18
+  - dependency-name: mysql:mysql-connector-java
+    versions:
+    - 8.0.23
+  - dependency-name: org.hibernate:hibernate-validator-cdi
+    versions:
+    - 7.0.0.Final
+  - dependency-name: org.hibernate:hibernate-c3p0
+    versions:
+    - 5.4.27.Final
+  - dependency-name: org.hibernate:hibernate-entitymanager
+    versions:
+    - 5.4.27.Final
+  - dependency-name: org.hibernate:hibernate-core
+    versions:
+    - 5.4.27.Final
+  - dependency-name: org.jboss.weld:weld-core-impl
+    versions:
+    - 4.0.0.Final
+  - dependency-name: org.jboss.weld.servlet:weld-servlet-core
+    versions:
+    - 4.0.0.Final
